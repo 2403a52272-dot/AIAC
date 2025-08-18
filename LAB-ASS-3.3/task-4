@@ -1,0 +1,45 @@
+def register_user(users_db, username, password):
+    """
+    Registers a new user with a username and password.
+
+    Args:
+        users_db (dict): Dictionary storing user credentials.
+        username (str): Desired username.
+        password (str): Desired password.
+
+    Returns:
+        bool: True if registration is successful, False if username already exists.
+    """
+    if username in users_db:
+        return False  # Username already exists
+    users_db[username] = password
+    return True
+
+def login_user(users_db, username, password):
+    """
+    Authenticates a user based on username and password.
+
+    Args:
+        users_db (dict): Dictionary storing user credentials.
+        username (str): Username to login.
+        password (str): Password to authenticate.
+
+    Returns:
+        bool: True if login is successful, False otherwise.
+    """
+    if username in users_db and users_db[username] == password:
+        return True
+    return False
+
+# Example usage
+if __name__ == "__main__":
+    users = {}
+    # Register users
+    print("Registering user 'alice':", register_user(users, "alice", "password123"))
+    print("Registering user 'bob':", register_user(users, "bob", "securepass"))
+    print("Registering user 'alice' again:", register_user(users, "alice", "newpass"))  # Should fail
+
+    # Login attempts
+    print("Login 'alice' with correct password:", login_user(users, "alice", "password123"))
+    print("Login 'alice' with wrong password:", login_user(users, "alice", "wrongpass"))
+    print("Login 'charlie' (not registered):", login_user(users, "charlie", "nopass"))

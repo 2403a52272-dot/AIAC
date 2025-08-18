@@ -1,0 +1,82 @@
+# Step 1: Simple power bill calculation (fixed rate)
+def calculate_power_bill(units):
+    """
+    Calculate the power bill for a given number of units at a fixed rate.
+    Args:
+        units (float): Number of electricity units consumed.
+    Returns:
+        float: Total bill amount.
+    """
+    rate_per_unit = 5.0  # Example fixed rate per unit
+    return units * rate_per_unit
+
+# Step 2: Add input validation
+def calculate_power_bill_v2(units):
+    """
+    Calculate the power bill with input validation.
+    Args:
+        units (float): Number of electricity units consumed.
+    Returns:
+        float: Total bill amount.
+    Raises:
+        ValueError: If units is negative.
+    """
+    if units < 0:
+        raise ValueError("Units consumed cannot be negative.")
+    rate_per_unit = 5.0
+    return units * rate_per_unit
+
+# Step 3: Add slab-wise billing (tiered rates)
+def calculate_power_bill_v3(units):
+    """
+    Calculate the power bill using slab rates.
+    Args:
+        units (float): Number of electricity units consumed.
+    Returns:
+        float: Total bill amount.
+    """
+    if units < 0:
+        raise ValueError("Units consumed cannot be negative.")
+    bill = 0
+    if units <= 100:
+        bill = units * 3.0
+    elif units <= 200:
+        bill = 100 * 3.0 + (units - 100) * 5.0
+    else:
+        bill = 100 * 3.0 + 100 * 5.0 + (units - 200) * 8.0
+    return bill
+
+# Step 4: Add taxes and fixed charges
+def calculate_power_bill_v4(units):
+    """
+    Calculate the power bill with slab rates, fixed charges, and tax.
+    Args:
+        units (float): Number of electricity units consumed.
+    Returns:
+        float: Total bill amount including fixed charges and tax.
+    """
+    if units < 0:
+        raise ValueError("Units consumed cannot be negative.")
+    fixed_charge = 50.0
+    tax_rate = 0.10  # 10% tax
+    # Slab calculation
+    if units <= 100:
+        bill = units * 3.0
+    elif units <= 200:
+        bill = 100 * 3.0 + (units - 100) * 5.0
+    else:
+        bill = 100 * 3.0 + 100 * 5.0 + (units - 200) * 8.0
+    bill += fixed_charge
+    bill += bill * tax_rate
+    return bill
+
+# Step 5: Interactive usage
+if __name__ == "__main__":
+    try:
+        units = float(input("Enter the number of electricity units consumed: "))
+        print("Simple Bill (fixed rate):", calculate_power_bill(units))
+        print("Validated Bill (fixed rate):", calculate_power_bill_v2(units))
+        print("Slab-wise Bill:", calculate_power_bill_v3(units))
+        print("Final Bill (with fixed charges and tax):", calculate_power_bill_v4(units))
+    except Exception as e:
+        print("Error:", e)

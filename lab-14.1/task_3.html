@@ -1,0 +1,196 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Event Registration</title>
+    <style>
+        :root{font-family:system-ui,-apple-system,Segoe UI,Roboto,"Helvetica Neue",Arial}
+        body{max-width:780px;margin:2rem auto;padding:1rem}
+        fieldset{border:1px solid #ccc;padding:1rem;margin-bottom:1rem}
+        legend{font-weight:600}
+        label{display:block;margin-top:.5rem}
+        input,select,button{font-size:1rem;padding:.45rem;margin-top:.25rem;width:100%;box-sizing:border-box}
+        .row{display:flex;gap:1rem}
+        .row > *{flex:1}
+        .error{color:#a00;font-size:.95rem;margin-top:.25rem}
+        .is-invalid{outline:2px solid rgba(255,0,0,.15)}
+        .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+        .success{background:#e6ffed;border:1px solid #2da34a;padding:.75rem;margin-top:1rem}
+    </style>
+</head>
+<body>
+    <h1>Event Registration</h1>
+
+    <form id="registrationForm" novalidate aria-describedby="formInstructions" role="form">
+        <p id="formInstructions">Fill in your details and choose a session. All fields are required.</p>
+
+        <fieldset>
+            <legend>Personal information</legend>
+
+            <label for="name">Full name</label>
+            <input id="name" name="name" type="text" autocomplete="name" aria-required="true" aria-describedby="nameHelp nameError" required />
+            <div id="nameHelp" class="sr-only">Enter your first and last name, at least 2 characters.</div>
+            <div id="nameError" class="error" role="alert" aria-live="assertive"></div>
+
+            <label for="email">Email address</label>
+            <input id="email" name="email" type="email" autocomplete="email" aria-required="true" aria-describedby="emailError" required />
+            <div id="emailError" class="error" role="alert" aria-live="assertive"></div>
+
+            <label for="phone">Phone number</label>
+            <input id="phone" name="phone" type="tel" inputmode="tel" aria-required="true" aria-describedby="phoneHelp phoneError" required />
+            <div id="phoneHelp" class="sr-only">Include country code if not local. Allowed characters: digits, spaces, parentheses, hyphens, plus sign.</div>
+            <div id="phoneError" class="error" role="alert" aria-live="assertive"></div>
+        </fieldset>
+
+        <fieldset>
+            <legend>Session selection</legend>
+
+            <label for="session">Choose a session</label>
+            <select id="session" name="session" aria-required="true" aria-describedby="sessionError" required>
+                <option value="">— Select a session —</option>
+                <option value="am">Morning — Accessibility Basics</option>
+                <option value="pm">Afternoon — Advanced ARIA & Testing</option>
+                <option value="evening">Evening — Hands-on Workshop</option>
+            </select>
+            <div id="sessionError" class="error" role="alert" aria-live="assertive"></div>
+        </fieldset>
+
+        <button type="submit">Register</button>
+
+        <div id="formMessage" class="success" role="status" aria-live="polite" hidden></div>
+    </form>
+
+    <script>
+        // GitHub Copilot
+        (function () {
+            const form = document.getElementById('registrationForm');
+            const fields = {
+                name: document.getElementById('name'),
+                email: document.getElementById('email'),
+                phone: document.getElementById('phone'),
+                session: document.getElementById('session')
+            };
+            const errors = {
+                name: document.getElementById('nameError'),
+                email: document.getElementById('emailError'),
+                phone: document.getElementById('phoneError'),
+                session: document.getElementById('sessionError')
+            };
+            const formMessage = document.getElementById('formMessage');
+
+            function clearErrors() {
+                Object.values(errors).forEach(e => {
+                    e.textContent = '';
+                });
+                Object.values(fields).forEach(f => {
+                    f.removeAttribute('aria-invalid');
+                    f.classList.remove('is-invalid');
+                });
+                formMessage.hidden = true;
+                formMessage.textContent = '';
+            }
+
+            function focusFirstInvalid(invalidField) {
+                if (invalidField && typeof invalidField.focus === 'function') {
+                    invalidField.focus();
+                    invalidField.scrollIntoView({behavior: 'smooth', block: 'center'});
+                }
+            }
+
+            function validateName(value) {
+                if (!value.trim()) return 'Name is required.';
+                if (value.trim().length < 2) return 'Please enter at least 2 characters.';
+                // allow letters, hyphens, apostrophes, spaces
+                if (!/^[\p{L}\p{M}'’.\-\s]+$/u.test(value.trim())) return 'Name contains invalid characters.';
+                return '';
+            }
+
+            function validateEmail(value) {
+                if (!value.trim()) return 'Email is required.';
+                // basic RFC-like check
+                const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                if (!re.test(value.trim())) return 'Please enter a valid email address.';
+                return '';
+            }
+
+            function validatePhone(value) {
+                if (!value.trim()) return 'Phone number is required.';
+                // allow "+", digits, spaces, parentheses, hyphens; require 7-20 digits total
+                const digits = value.replace(/\D/g, '');
+                if (digits.length < 7 || digits.length > 20) return 'Enter a valid phone number with 7–20 digits.';
+                if (!/^[+\d\s().-]+$/.test(value)) return 'Phone number contains invalid characters.';
+                return '';
+            }
+
+            function validateSession(value) {
+                if (!value) return 'Please select a session.';
+                return '';
+            }
+
+            form.addEventListener('submit', function (ev) {
+                ev.preventDefault();
+                clearErrors();
+
+                const vName = fields.name.value;
+                const vEmail = fields.email.value;
+                const vPhone = fields.phone.value;
+                const vSession = fields.session.value;
+
+                const nameErr = validateName(vName);
+                const emailErr = validateEmail(vEmail);
+                const phoneErr = validatePhone(vPhone);
+                const sessionErr = validateSession(vSession);
+
+                const feedback = { name: nameErr, email: emailErr, phone: phoneErr, session: sessionErr };
+
+                let firstInvalid = null;
+                Object.keys(feedback).forEach(key => {
+                    const message = feedback[key];
+                    if (message) {
+                        errors[key].textContent = message;
+                        fields[key].setAttribute('aria-invalid', 'true');
+                        fields[key].classList.add('is-invalid');
+                        if (!firstInvalid) firstInvalid = fields[key];
+                    }
+                });
+
+                if (firstInvalid) {
+                    focusFirstInvalid(firstInvalid);
+                    return;
+                }
+
+                // If all valid: simulate submission success
+                formMessage.hidden = false;
+                formMessage.textContent = 'Registration received. A confirmation email will be sent shortly.';
+                // Clear form (optional)
+                form.reset();
+                // move focus to confirmation for screen reader users
+                formMessage.focus?.();
+            });
+
+            // Live inline validation (on blur)
+            Object.keys(fields).forEach(key => {
+                fields[key].addEventListener('blur', () => {
+                    let msg = '';
+                    switch (key) {
+                        case 'name': msg = validateName(fields.name.value); break;
+                        case 'email': msg = validateEmail(fields.email.value); break;
+                        case 'phone': msg = validatePhone(fields.phone.value); break;
+                        case 'session': msg = validateSession(fields.session.value); break;
+                    }
+                    errors[key].textContent = msg;
+                    if (msg) {
+                        fields[key].setAttribute('aria-invalid', 'true');
+                        fields[key].classList.add('is-invalid');
+                    } else {
+                        fields[key].removeAttribute('aria-invalid');
+                        fields[key].classList.remove('is-invalid');
+                    }
+                });
+            });
+
+        })();
+    </script>
+</body>
+</html>

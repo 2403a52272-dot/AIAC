@@ -1,0 +1,193 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Product Display — Lab 14.1</title>
+  <style>
+    /* BEM: block = product */
+    :root{
+      --bg:#f6f7fb;
+      --card:#ffffff;
+      --accent:#1e88e5;
+      --accent-strong:#166bb3;
+      --muted:#6b7280;
+      --radius:12px;
+      --gap:18px;
+    }
+
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;color:#111;background:var(--bg);}
+
+    .product {
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:40px 18px;
+      box-sizing:border-box;
+      min-height:100vh;
+    }
+
+    /* Card */
+    .product__card {
+      background:var(--card);
+      border-radius:var(--radius);
+      box-shadow:0 6px 20px rgba(16,24,40,0.08);
+      max-width:980px;
+      width:100%;
+      overflow:hidden;
+      transition:transform .25s ease, box-shadow .25s ease;
+      display:flex;
+      flex-direction:column;
+      gap:var(--gap);
+    }
+    .product__card:hover { transform:translateY(-6px); box-shadow:0 14px 40px rgba(16,24,40,0.12); }
+
+    /* Media & info layout */
+    .product__media {
+      position:relative;
+      overflow:hidden;
+      background:linear-gradient(135deg,#f3f7ff 0%, #ffffff 100%);
+      display:block;
+      min-height:220px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+    }
+    .product__media img {
+      width:100%;
+      height:100%;
+      object-fit:cover;
+      display:block;
+      transition:transform .45s cubic-bezier(.2,.9,.2,1);
+      transform-origin:center;
+    }
+    /* hover scale effect */
+    .product__card:hover .product__media img { transform:scale(1.05); }
+
+    .product__info {
+      padding:22px;
+      display:flex;
+      flex-direction:column;
+      gap:14px;
+    }
+
+    .product__row {
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .product__title {
+      margin:0;
+      font-size:1.125rem;
+      line-height:1.2;
+      font-weight:600;
+      color:#0f1724;
+    }
+
+    .product__price {
+      font-weight:700;
+      color:var(--accent-strong);
+      font-size:1.125rem;
+    }
+
+    .product__meta {
+      color:var(--muted);
+      font-size:.95rem;
+    }
+
+    .product__actions {
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    .product__button {
+      appearance:none;
+      border:0;
+      background:linear-gradient(180deg,var(--accent),var(--accent-strong));
+      color:white;
+      padding:10px 16px;
+      font-weight:600;
+      border-radius:10px;
+      cursor:pointer;
+      transition:transform .15s ease, box-shadow .15s ease, filter .15s ease;
+      box-shadow:0 6px 18px rgba(30,136,229,0.18);
+    }
+    .product__button:hover { transform:translateY(-3px); filter:brightness(.98); }
+    .product__button:active { transform:translateY(0); }
+    .product__button:focus { outline:3px solid rgba(30,136,229,0.18); outline-offset:2px; }
+
+    .product__secondary {
+      background:transparent;
+      color:var(--muted);
+      padding:8px 12px;
+      border-radius:10px;
+      border:1px solid rgba(15,23,36,0.06);
+      cursor:pointer;
+    }
+
+    /* Responsive: desktop layout with image left, info right */
+    @media (min-width:720px){
+      .product__card {
+        flex-direction:row;
+        align-items:stretch;
+      }
+      .product__media {
+        flex:0 0 46%;
+        min-height:360px;
+      }
+      .product__info {
+        flex:1;
+        padding:28px;
+      }
+    }
+
+    /* Smaller tweaks */
+    @media (max-width:420px){
+      .product__title { font-size:1rem; }
+      .product__price { font-size:1rem; }
+    }
+  </style>
+</head>
+<body>
+  <main class="product" role="main">
+    <article class="product__card" aria-label="Product card">
+      <figure class="product__media" aria-hidden="false">
+        <img src="https://via.placeholder.com/900x600.png?text=Product+Image" alt="Sample product image" />
+      </figure>
+
+      <section class="product__info">
+        <div class="product__row">
+          <h1 class="product__title">Aurora Wireless Headphones</h1>
+          <div class="product__price" aria-hidden="false">$129.00</div>
+        </div>
+
+        <p class="product__meta">Comfort-fit, active noise cancellation, 24h battery life.</p>
+
+        <div class="product__actions" role="group" aria-label="Purchase actions">
+          <button type="button" class="product__button" id="addToCart" data-product-name="Aurora Wireless Headphones" aria-label="Add Aurora Wireless Headphones to cart">
+            Add to Cart
+          </button>
+          <button type="button" class="product__secondary" aria-label="View details">View details</button>
+        </div>
+      </section>
+    </article>
+  </main>
+
+  <script>
+    // Simple Add to Cart alert (accessible)
+    (function(){
+      const btn = document.getElementById('addToCart');
+      btn.addEventListener('click', function(e){
+        const name = this.getAttribute('data-product-name') || document.querySelector('.product__title').textContent.trim();
+        // Use setTimeout to ensure focus behavior doesn't get interrupted by alert on some browsers
+        setTimeout(() => { alert(name + ' has been added to your cart.'); }, 10);
+      });
+
+      // Keyboard "Enter" and "Space" handled automatically for button element
+    })();
+  </script>
+</body>
+</html>

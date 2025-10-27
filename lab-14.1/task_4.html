@@ -1,0 +1,108 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Fetch JSON and Render List</title>
+    <style>
+        body { font-family: system-ui, sans-serif; margin: 20px; }
+        #loading { color: #0a58ca; }
+        #error { color: #b02a37; margin-top: 12px; }
+        ul { padding-left: 20px; }
+        li { margin-bottom: 8px; }
+        button { margin-top: 8px; }
+    </style>
+</head>
+<body>
+    <h1>Users</h1>
+
+    <div id="loading" aria-live="polite" hidden>Loading…</div>
+    <div id="error" role="alert" hidden></div>
+
+    <ul id="list" aria-live="polite"></ul>
+
+    <script>
+        // Change to the API you want to fetch
+        const API_URL = 'https://jsonplaceholder.typicode.com/users';
+
+        const loadingEl = document.getElementById('loading');
+        const errorEl = document.getElementById('error');
+        const listEl = document.getElementById('list');
+
+        async function fetchAndRender(url = API_URL) {
+            showLoading(true);
+            showError(null);
+            clearList();
+
+            try {
+                const res = await fetch(url, { cache: 'no-store' });
+                if (!res.ok) {
+                    throw new Error('Server responded with ' + res.status + ' ' + res.statusText);
+                }
+
+                const data = await res.json();
+
+                if (!Array.isArray(data)) {
+                    throw new Error('Expected an array in response');
+                }
+
+                renderList(data);
+            } catch (err) {
+                showError(err.message || 'An unknown error occurred');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function showLoading(visible) {
+            loadingEl.hidden = !visible;
+        }
+
+        function showError(message) {
+            if (!message) {
+                errorEl.hidden = true;
+                errorEl.textContent = '';
+                return;
+            }
+            errorEl.hidden = false;
+            errorEl.textContent = message + ' ';
+            // add a retry button when there's an error
+            const retry = document.createElement('button');
+            retry.textContent = 'Retry';
+            retry.addEventListener('click', () => fetchAndRender());
+            // clear any previous children and append
+            errorEl.appendChild(retry);
+        }
+
+        function clearList() {
+            listEl.innerHTML = '';
+        }
+
+        function renderList(items) {
+            if (items.length === 0) {
+                listEl.innerHTML = '<li>No items found.</li>';
+                return;
+            }
+
+            const fragment = document.createDocumentFragment();
+
+            items.forEach(item => {
+                // adjust display fields depending on the JSON schema
+                // for JSONPlaceholder users we show name and email
+                const li = document.createElement('li');
+                const title = item.name || item.title || item.id || 'Unnamed item';
+                const subtitle = item.email ? ' — ' + item.email : (item.body ? ' — ' + String(item.body).slice(0, 60) + '…' : '');
+                li.textContent = title + subtitle;
+                fragment.appendChild(li);
+            });
+
+            listEl.appendChild(fragment);
+        }
+
+        // start on load
+        window.addEventListener('DOMContentLoaded', () => {
+            fetchAndRender();
+        });
+    </script>
+</body>
+</html>
